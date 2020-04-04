@@ -1,6 +1,6 @@
 (defproject csv2sql "0.1.0-SNAPSHOT"
-  :description "A convertor for converting a pile of CSVs into SQL tables (MySQL/PostgreSQL/SQLite)."
-  :url "http://github.com/ivarthorson/csv2sql"
+  :description "A simple ETL tool to load CSVs in a directory tree into a SQL database (MySQL/PostgreSQL/SQLite). Based on 'https://github.com/ivarthorson/csv2sql'"
+  :url "http://github.com/go-choppy/csv2sql"
   :license {:name "EPL-2.0 OR GPL-2.0-or-later WITH Classpath-exception-2.0"
             :url "https://www.eclipse.org/legal/epl-2.0/"}
   :dependencies [[org.clojure/clojure "1.9.0"]

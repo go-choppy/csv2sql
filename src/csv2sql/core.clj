@@ -55,21 +55,21 @@
 (def default-db
   (let [db-type (System/getenv "DATABASE_TYPE")]
     (cond
-      (= db-type "sqlite") {:classname   "org.sqlite.JDBC"
-                            :subprotocol "sqlite"
-                            :subname     (or (System/getenv "SQLITE_DB_PATH") "sqlite-database.db")}
+      (= db-type "postgresql") {:dbtype "postgresql"
+                                :host     (or (System/getenv "POSTGRES_HOST") "localhost")
+                                :port     (or (System/getenv "POSTGRES_PORT") "5432")
+                                :dbname   (or (System/getenv "POSTGRES_DB")  "csv2sql")
+                                :user     (or (System/getenv "POSTGRES_USER") "postgres")
+                                :password (or (System/getenv "POSTGRES_PASS") "mysecretpassword")}
       (= db-type "mysql") {:dbtype "mysql"
                            :host     (or (System/getenv "MYSQL_HOST") "localhost")
                            :port     (or (System/getenv "MYSQL_PORT") "3306")
                            :dbname   (or (System/getenv "MYSQL_DB")  "csv2sql")
-                           :user     (or (System/getenv "MYSQL_USER") "userdata")
+                           :user     (or (System/getenv "MYSQL_USER") "mysql")
                            :password (or (System/getenv "MYSQL_PASS") "mysecretpassword")}
-      :else {:dbtype "postgresql"
-             :host     (or (System/getenv "MYSQL_HOST") "localhost")
-             :port     (or (System/getenv "MYSQL_PORT") "5432")
-             :dbname   (or (System/getenv "POSTGRES_DB")  "csv2sql")
-             :user     (or (System/getenv "POSTGRES_USER") "postgres")
-             :password (or (System/getenv "POSTGRES_PASS") "mysecretpassword")})))
+      :else {:classname   "org.sqlite.JDBC"
+             :subprotocol "sqlite"
+             :subname     (or (System/getenv "SQLITE_DB_PATH") "sqlite-database.db")})))
 
 (defn connection-ok?
   "A predicate that tests if the database is connected."
@@ -111,7 +111,7 @@
         (sql/insert-multi! db table header chunk-of-rows)))))
 
 (defn insert-all-csvs!
-  "Loads all the subdirectories of CSVDIR as tables. Optional hashmap MANUAL-OPTIONS
+  "Loads all the subdirectories of DATA_DIR as tables. Optional hashmap MANUAL-OPTIONS
   lets you decide how to customize various tables; for example, you may want to set
   an optional table."
   [db csvdir]
@@ -125,18 +125,15 @@
 
 (defn -main
   []
-  (let [csvdir (System/getenv "CSVDIR")
-        db default-db
-        auto-detect (System/getenv "AUTO_DETECT")]
+  (let [csvdir (System/getenv "DATA_DIR")
+        db default-db]
     (when-not csvdir
-      (throw (Exception. "Please specify a valid CSVDIR environment variable.")))
+      (throw (Exception. "Please specify a valid DATA_DIR environment variable.")))
     (when-not (connection-ok? db)
       (throw (Exception. (str "Unable to connect to DB:" db))))
     (drop-existing-sql-tables! db csvdir)
     (convert-jsons-to-csvs! csvdir)
-    (if (= auto-detect "true")
-      (autodetect-sql-schemas! csvdir)
-      nil)
+    (autodetect-sql-schemas! csvdir)
     (make-sql-tables! db csvdir)
     (insert-all-csvs! db csvdir)
     (println "Done!")))
