@@ -1,6 +1,8 @@
 # csv2sql
 
-A simple ETL tool to load CSVs in a directory tree into a SQL database (MySQL/PostgreSQL/SQLite). Based on 'https://github.com/ivarthorson/csv2sql'.
+A simple ETL tool to load CSVs in a directory tree into a SQL database (MySQL/PostgreSQL/SQLite). 
+
+Based on https://github.com/ivarthorson/csv2sql.
 
 Scans through the subdirectories of DATA_DIR, infers the column data types,
 and stores the inferred schema in DATA_DIR so that you may manually edit it
@@ -25,7 +27,6 @@ lein uberjar  # Build the uberjar
 
 # Edit the following path to be the root of the CSV directory tree
 DATA_DIR=/path/to/some/csvs/
-AUTO_DETECT=true  # return true if the AUTO_DETECT=true, otherwise return false
 
 # Default SQLite
 SQLITE_DB_PATH=sqlite-database.db
