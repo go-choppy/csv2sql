@@ -33,7 +33,7 @@
             (try (-> filepath
                      (json/load-json-as-csv)
                      (csv/save-csv csvfile))
-                 (catch Exception e 
+                 (catch Exception e
                    (println "ERROR LOADING: " filepath)))))))))
 
 (defn autodetect-sql-schemas!
@@ -52,15 +52,24 @@
           (spit (table-sql-file dir) table-sql))))))
 
 
-(def default-db 
-  (if (System/getenv "USE_SQLITE")
-    {:classname   "org.sqlite.JDBC"
-     :subprotocol "sqlite"
-     :subname     (or (System/getenv "SQLITE_DB_PATH") "sqlite-database.db")}
-    {:dbtype "postgresql" 
-     :dbname   (or (System/getenv "POSTGERS_DB")  "csv2sql")
-     :user     (or (System/getenv "POSTGRES_USER") "postgres")
-     :password (or (System/getenv "POSTGRES_PASS") "mysecretpassword")}))
+(def default-db
+  (let [db-type (System/getenv "DATABASE_TYPE")]
+    (cond
+      (= db-type "sqlite") {:classname   "org.sqlite.JDBC"
+                            :subprotocol "sqlite"
+                            :subname     (or (System/getenv "SQLITE_DB_PATH") "sqlite-database.db")}
+      (= db-type "mysql") {:dbtype "mysql"
+                           :host     (or (System/getenv "MYSQL_HOST") "localhost")
+                           :port     (or (System/getenv "MYSQL_PORT") "3306")
+                           :dbname   (or (System/getenv "MYSQL_DB")  "csv2sql")
+                           :user     (or (System/getenv "MYSQL_USER") "userdata")
+                           :password (or (System/getenv "MYSQL_PASS") "mysecretpassword")}
+      :else {:dbtype "postgresql"
+             :host     (or (System/getenv "MYSQL_HOST") "localhost")
+             :port     (or (System/getenv "MYSQL_PORT") "5432")
+             :dbname   (or (System/getenv "POSTGRES_DB")  "csv2sql")
+             :user     (or (System/getenv "POSTGRES_USER") "postgres")
+             :password (or (System/getenv "POSTGRES_PASS") "mysecretpassword")})))
 
 (defn connection-ok?
   "A predicate that tests if the database is connected."
@@ -71,8 +80,8 @@
   "For each subdirectory in DIRNAME, drop any tables with the same name."
   [db csvdir]
   (doseq [table-name (map (fn [f] (.getName ^java.io.File f))
-                          (files/list-subdirectories csvdir))]    
-    (let [cmd (format "DROP TABLE IF EXISTS %s;" table-name) ]
+                          (files/list-subdirectories csvdir))]
+    (let [cmd (format "DROP TABLE IF EXISTS %s;" table-name)]
       (sql/db-do-commands db cmd))))
 
 (defn make-sql-tables!
@@ -117,14 +126,17 @@
 (defn -main
   []
   (let [csvdir (System/getenv "CSVDIR")
-        db default-db]
+        db default-db
+        auto-detect (System/getenv "AUTO_DETECT")]
     (when-not csvdir
       (throw (Exception. "Please specify a valid CSVDIR environment variable.")))
     (when-not (connection-ok? db)
       (throw (Exception. (str "Unable to connect to DB:" db))))
     (drop-existing-sql-tables! db csvdir)
     (convert-jsons-to-csvs! csvdir)
-    (autodetect-sql-schemas! csvdir)
+    (if (= auto-detect "true")
+      (autodetect-sql-schemas! csvdir)
+      nil)
     (make-sql-tables! db csvdir)
     (insert-all-csvs! db csvdir)
     (println "Done!")))

@@ -1,5 +1,5 @@
 (defproject csv2sql "0.1.0-SNAPSHOT"
-  :description "A demo of converting a pile of CSVs into Postgres SQL tables."
+  :description "A convertor for converting a pile of CSVs into SQL tables (MySQL/PostgreSQL/SQLite)."
   :url "http://github.com/ivarthorson/csv2sql"
   :license {:name "EPL-2.0 OR GPL-2.0-or-later WITH Classpath-exception-2.0"
             :url "https://www.eclipse.org/legal/epl-2.0/"}
@@ -8,8 +8,18 @@
                  [org.clojure/data.json "0.2.6"]
                  [org.clojure/java.jdbc "0.7.9"]
                  [org.postgresql/postgresql "42.2.5"]
+                 [mysql/mysql-connector-java "5.1.6"]
                  [org.xerial/sqlite-jdbc "3.7.2"]
                  [clojure.java-time "0.3.2"]]
+
+  :repositories [["central" "https://maven.aliyun.com/repository/central"]
+                 ["jcenter" "https://maven.aliyun.com/repository/jcenter"]
+                 ["clojars" "https://mirrors.tuna.tsinghua.edu.cn/clojars/"]]
+
+  :plugin-repositories [["central" "https://maven.aliyun.com/repository/central"]
+                        ["jcenter" "https://maven.aliyun.com/repository/jcenter"]
+                        ["clojars" "https://mirrors.tuna.tsinghua.edu.cn/clojars/"]]
+
   :repl-options {:init-ns csv2sql.core}
   :main csv2sql.core
   :aot [csv2sql.core])
