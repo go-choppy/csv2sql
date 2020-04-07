@@ -2,7 +2,8 @@
   (:require [clojure.data.csv]
             [csv2sql.dates :as dates]
             [csv2sql.files :as files]
-            [csv2sql.util :as util]))
+            [csv2sql.util :as util]
+            [csv2sql.csvs :as csvs]))
 
 (set! *warn-on-reflection* true)
 
@@ -69,18 +70,19 @@
   [csv-filepath]
   (println "Scanning:" csv-filepath)
   (with-open [reader (clojure.java.io/reader csv-filepath)]
-     (let [rows (clojure.data.csv/read-csv reader)
-           header (clean-column-names (first rows))
-           data-rows (rest rows)
-           chunk-size 10000]
-       (->> data-rows          
-            (partition-all chunk-size)
-            (map #(apply map vector %)) ;; Convert list of rows into list of columns
-            (map #(pmap guess-all-sql-types-in-column %))
-            (map (fn [i data] (println (* 10000 (inc i)) "rows scanned") data) (range))
-            (apply map (fn [& args] (reduce clojure.set/union args)))
-            (map vector header)
-            (into {})))))
+    (let [sep (csvs/guess-separator csv-filepath)
+          rows (clojure.data.csv/read-csv reader :separator sep)
+          header (clean-column-names (first rows))
+          data-rows (rest rows)
+          chunk-size 10000]
+      (->> data-rows
+           (partition-all chunk-size)
+           (map #(apply map vector %)) ;; Convert list of rows into list of columns
+           (map #(pmap guess-all-sql-types-in-column %))
+           (map (fn [i data] (println (* 10000 (inc i)) "rows scanned") data) (range))
+           (apply map (fn [& args] (reduce clojure.set/union args)))
+           (map vector header)
+           (into {})))))
 
 (defn scan-csvdir-and-make-schema
   "Scans the header of every .csv file in CSVDIR, and returns a hashmap
@@ -88,7 +90,7 @@
   If a non-alphanumeric string is found, raises an exception. 
   If the schema is inconsistent, raises an exception."
   [csvdir]
-  (let [csv-schemas (->> (files/list-files-of-type csvdir "csv")
+  (let [csv-schemas (->> (files/list-files-of-type csvdir "csv|tsv|txt")
                          (map guess-csv-column-types))
         columns (set (flatten (map keys csv-schemas)))
         problematic-columns (remove util/alphanumeric? columns)]
@@ -139,7 +141,7 @@
                              row []]
                         (if-not (empty? parsers)
                           (let [parse-fn (first parsers)
-                                element (first raw-row)] 
+                                element (first raw-row)]
                             (if parse-fn
                               (recur (next raw-row)
                                      (next parsers)

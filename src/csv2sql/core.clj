@@ -103,7 +103,8 @@
   found in the schema, it is omitted and not inserted into the database. "
   [db table csvfile schema]
   (with-open [reader (clojure.java.io/reader csvfile)]
-    (let [csv-rows (clojure.data.csv/read-csv reader)
+    (let [sep (csv/guess-separator csvfile)
+          csv-rows (clojure.data.csv/read-csv reader :separator sep)
           [header typed-rows] (guess/parse-csv-rows-using-schema schema csv-rows)
           cnt (atom 0)
           chunk-size 1000]
@@ -122,7 +123,7 @@
     (let [tablename (.getName ^java.io.File dir)
           schema (edn/read-string (slurp (table-schema-file dir)))]
       (when-not (empty? schema)
-        (doseq [csvfile (files/list-files-of-type dir "csv")]
+        (doseq [csvfile (files/list-files-of-type dir "csv|tsv|txt")]
           (print (format "\nLoading: %s " csvfile))
           (insert-csv! db tablename csvfile schema))))))
 
@@ -139,4 +140,5 @@
     (autodetect-sql-schemas! csvdir)
     (make-sql-tables! db csvdir)
     (insert-all-csvs! db csvdir)
-    (println "Done!")))
+    (println "Done!")
+    (System/exit 0)))

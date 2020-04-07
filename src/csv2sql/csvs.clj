@@ -1,6 +1,7 @@
 (ns csv2sql.csvs
   "Functions for loading and saving CSVs."
-  (:require [clojure.data.csv :as csv]))
+  (:require [clojure.data.csv :as csv]
+            [clojure.string :as clj-str]))
 
 (set! *warn-on-reflection* true)
 
@@ -10,6 +11,15 @@
   (if (and (string? s) (empty? s))
     nil
     s))
+
+(defn guess-separator
+  [filepath]
+  (with-open [reader (clojure.java.io/reader filepath)]
+    (let [header (first (line-seq reader))
+          seps [\tab \, \; \space]
+          sep-map (->> (map #(hash-map % (count (clj-str/split header (re-pattern (str %))))) seps)
+                       (into {}))]
+      (key (apply max-key val sep-map)))))
 
 (defn dissoc-nils
   "Drops keys with nil values, or nil keys, from the hashmap H."
@@ -44,15 +54,13 @@
   [rowmaps]
   (let [columns (vec (sort (into #{} (map name (flatten (map keys rowmaps))))))]
     (vec (conj (for [row rowmaps]
-              (vec (for [col columns]
-                     (str (get row col "")))))
-            columns))))
+                 (vec (for [col columns]
+                        (str (get row col "")))))
+               columns))))
 
 (comment
 
   (def data (tabular->maps (load-csv "/path/to/mycsv.csv")))
-  
-  (save-csv! (maps->tabular data) "/some/other/path.csv")
 
-  )
+  (save-csv! (maps->tabular data) "/some/other/path.csv"))
 
