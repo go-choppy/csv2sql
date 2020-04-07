@@ -92,6 +92,8 @@
                          (map guess-csv-column-types))
         columns (set (flatten (map keys csv-schemas)))
         problematic-columns (remove util/alphanumeric? columns)]
+    (when (empty? csv-schemas)
+      (throw (Exception. (str "Error: Not found any valid file(s) in " csvdir))))
     (when-not (empty? problematic-columns)
       (throw (Exception. (str "Non-alphanumeric characters found in column names:"
                               (apply str (interpose ", "  problematic-columns))))))
@@ -100,20 +102,20 @@
                                             (flatten)
                                             (remove nil?)
                                             (set))
-                     nullable-suffix (if (get all-types-for-col "NULL") 
+                     nullable-suffix (if (get all-types-for-col "NULL")
                                        " NULL"
                                        "")
                      types (disj all-types-for-col "NULL")]
                  (cond
-                  (= 0 (count types))        [col nil]
-                  (= 1 (count types))        [col (str (first types) nullable-suffix)]
+                   (= 0 (count types))        [col nil]
+                   (= 1 (count types))        [col (str (first types) nullable-suffix)]
                   ;; If it's mixed integer and float, make everything float
-                  (= #{"INTEGER" "DOUBLE PRECISION"} types) 
-                                             [col (str "DOUBLE PRECISION" nullable-suffix)]
+                   (= #{"INTEGER" "DOUBLE PRECISION"} types)
+                   [col (str "DOUBLE PRECISION" nullable-suffix)]
                   ;; If the default type of TEXT is in there, choose text
-                  (get types "TEXT") [col (str "TEXT" nullable-suffix)]
-                  :otherwise  ;; Otherwise we have some weird error
-                  (throw (Exception. (str "Inconsistent types across files for column: " 
+                   (get types "TEXT") [col (str "TEXT" nullable-suffix)]
+                   :otherwise  ;; Otherwise we have some weird error
+                   (throw (Exception. (str "Inconsistent types across files for column: "
                                            col (vec types))))))))))
 
 (defn drop-trailing-null

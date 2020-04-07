@@ -25,6 +25,7 @@
   creates a .csv file (if it does not already exist) with the same contents."
   [csvdir]
   (printf "Converting JSONs into CSVs: %s\n" csvdir)
+  (flush)
   (doseq [dir (files/list-subdirectories csvdir)]
     (doseq [jsonfile (files/list-files-of-type dir "json")]
       (let [csvfile ^java.io.File (matching-csv-for-json jsonfile)]
@@ -42,7 +43,9 @@
   before loading it in with MAKE-SQL-TABLES."
   [csvdir]
   (doseq [dir (files/list-subdirectories csvdir)]
+    ; https://clojuredocs.org/clojure.core/printf#example-542692d4c026201cdc327038
     (printf "Autodetecting schema for: %s\n" dir)
+    (flush)
     (let [tablename (.getName ^java.io.File dir)
           schema (guess/scan-csvdir-and-make-schema dir)]
       (when-not (empty? schema)
