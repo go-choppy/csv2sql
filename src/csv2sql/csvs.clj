@@ -1,7 +1,8 @@
 (ns csv2sql.csvs
   "Functions for loading and saving CSVs."
   (:require [clojure.data.csv :as csv]
-            [clojure.string :as clj-str]))
+            [clojure.string :as clj-str]
+            [csv2sql.util :as util]))
 
 (set! *warn-on-reflection* true)
 
@@ -14,7 +15,7 @@
 
 (defn guess-separator
   [filepath]
-  (with-open [reader (clojure.java.io/reader filepath)]
+  (with-open [reader (util/bom-reader filepath)]
     (let [header (first (line-seq reader))
           seps [\tab \, \; \space]
           sep-map (->> (map #(hash-map % (count (clj-str/split header (re-pattern (str %))))) seps)
@@ -30,7 +31,7 @@
 (defn load-csv
   "Returns a data structure loaded from a CSV file at FILEPATH."
   [filepath]
-  (with-open [reader (clojure.java.io/reader filepath)]
+  (with-open [reader (util/bom-reader filepath)]
     (->> (csv/read-csv reader)
          (map (fn [row] (map empty-string-to-nil row)))
          (doall))))

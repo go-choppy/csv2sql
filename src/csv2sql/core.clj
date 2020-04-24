@@ -6,19 +6,21 @@
             [csv2sql.guess-schema :as guess]
             [csv2sql.files :as files]
             [csv2sql.json :as json]
-            [csv2sql.csvs :as csv]))
+            [csv2sql.csvs :as csv]
+            [clojure.java.io :as io]
+            [csv2sql.util :as util]))
 
 (defn table-schema-file
   [^java.io.File dir]
-  (clojure.java.io/file (format "%s-schema.edn" (.getAbsolutePath dir))))
+  (io/file (format "%s-schema.edn" (.getAbsolutePath dir))))
 
 (defn table-sql-file
   [^java.io.File dir]
-  (clojure.java.io/file (format "%s.sql" (.getAbsolutePath dir))))
+  (io/file (format "%s.sql" (.getAbsolutePath dir))))
 
 (defn matching-csv-for-json
   [^java.io.File jsonfile]
-  (clojure.java.io/file (format "%s.csv" (.getAbsolutePath jsonfile))))
+  (io/file (format "%s.csv" (.getAbsolutePath jsonfile))))
 
 (defn convert-jsons-to-csvs!
   "Scans through the subdirectories of CSVDIR, and for each JSON that exists,
@@ -102,7 +104,7 @@
   type as they are loaded. Lazy, so it works on very large files. If a column is not
   found in the schema, it is omitted and not inserted into the database. "
   [db table csvfile schema]
-  (with-open [reader (clojure.java.io/reader csvfile)]
+  (with-open [reader (util/bom-reader csvfile)]
     (let [sep (csv/guess-separator csvfile)
           csv-rows (clojure.data.csv/read-csv reader :separator sep)
           [header typed-rows] (guess/parse-csv-rows-using-schema schema csv-rows)

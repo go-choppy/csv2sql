@@ -1,13 +1,14 @@
 (ns csv2sql.json
   "Functions for loading and saving JSONs."
-  (:require [clojure.data.json :as js]))
+  (:require [clojure.data.json :as js]
+            [csv2sql.util :as util]))
 
 (set! *warn-on-reflection* true)
 
 (defn load-json
   "Returns a data structure loaded from a CSV file at FILEPATH."
   [filepath]
-  (with-open [reader (clojure.java.io/reader filepath)]
+  (with-open [reader (util/bom-reader filepath)]
     (js/read reader)))
 
 (defn save-json

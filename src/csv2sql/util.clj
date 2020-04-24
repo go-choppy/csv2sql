@@ -1,4 +1,6 @@
-(ns csv2sql.util)
+(ns csv2sql.util
+  (:require [clojure.java.io :as io])
+  (:import [org.apache.commons.io.input BOMInputStream]))
 
 (set! *warn-on-reflection* true)
 
@@ -16,3 +18,11 @@
   "Converts spaces to underscores."
   [string]
   (clojure.string/replace string #"\." "_"))
+
+(defn bom-reader
+  "Remove `Byte Order Mark` and return reader"
+  [filepath]
+  (-> filepath
+      io/input-stream
+      BOMInputStream.
+      io/reader))

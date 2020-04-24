@@ -1,19 +1,19 @@
 (ns csv2sql.files
   (:require [java-time :as jt]
-            [clojure.java.io :as jio]))
+            [clojure.java.io :as io]))
 
 (defn list-files
   "Lists only the files in the directory string DIR."
   [dir]
-  (->> (file-seq (clojure.java.io/file dir))
+  (->> (file-seq (io/file dir))
        (remove #(.isDirectory ^java.io.File %))))
 
 (defn list-subdirectories
   "Lists only the subdirectorys of the directory string DIR"
   [dir]
-  (->> (file-seq (clojure.java.io/file dir))
+  (->> (file-seq (io/file dir))
        (filter #(.isDirectory %))
-       (remove #(= % (clojure.java.io/file dir)))))
+       (remove #(= % (io/file dir)))))
 
 (defn has-suffix?
   "Works on file object types."
@@ -24,5 +24,5 @@
 (defn list-files-of-type 
   "Lists all files in the directory with the extension ext."
   [dir ext]
-  (->> (file-seq (clojure.java.io/file dir))
+  (->> (file-seq (io/file dir))
        (filter (partial has-suffix? ext))))

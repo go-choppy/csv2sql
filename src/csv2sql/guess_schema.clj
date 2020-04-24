@@ -69,7 +69,7 @@
   very large files."
   [csv-filepath]
   (println "Scanning:" csv-filepath)
-  (with-open [reader (clojure.java.io/reader csv-filepath)]
+  (with-open [reader (util/bom-reader csv-filepath)]
     (let [sep (csvs/guess-separator csv-filepath)
           rows (clojure.data.csv/read-csv reader :separator sep)
           header (clean-column-names (first rows))
