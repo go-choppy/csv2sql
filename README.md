@@ -8,7 +8,7 @@ Scans through the subdirectories of DATA_DIR, infers the column data types,
 and stores the inferred schema in DATA_DIR so that you may manually edit it
 before re-running csv2sql.
 
-Only Support two file type: JSON and CSV (Comma Seperated Value Format)
+Support these file type: JSON, CSV (Comma Seperated Value Format), TSV (Tab Seperated Value Format), TXT (Space/Semicolon Seperated Value Format) etc.
 
 ```bash
 ├── $DATA_DIR              # ROOT Directory
