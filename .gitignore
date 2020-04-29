@@ -13,5 +13,3 @@ pom.xml.asc
 .project
 .classpath
 .settings
-env.sh
-env.bat

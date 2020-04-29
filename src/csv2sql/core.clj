@@ -8,7 +8,9 @@
             [csv2sql.json :as json]
             [csv2sql.csvs :as csv]
             [clojure.java.io :as io]
-            [csv2sql.util :as util]))
+            [csv2sql.util :as util]
+            [clojure.string :as clj-str]
+            [csv2sql.notification :as notification]))
 
 (defn table-schema-file
   [^java.io.File dir]
@@ -132,7 +134,15 @@
 (defn -main
   []
   (let [csvdir (System/getenv "DATA_DIR")
-        db default-db]
+        db default-db
+        notification? (= (System/getenv "NOTIFICATION_ENABLED") "true")
+        notification-plugin (or (System/getenv "NOTIFICATION_PLUGIN") "metabase")
+        notification-url (System/getenv "NOTIFICATION_URL")
+        dataset-id (System/getenv "DATASET_ID")
+        notification-types (clj-str/split (System/getenv "NOTIFICATION_TYPES") #",")
+        auth-type (or (System/getenv "AUTH_TYPE") "cookie")
+        auth-key (or (System/getenv "AUTH_KEY") "metabase.SESSION")
+        auth-value (System/getenv "AUTH_VALUE")]
     (when-not csvdir
       (throw (Exception. "Please specify a valid DATA_DIR environment variable.")))
     (when-not (connection-ok? db)
@@ -143,4 +153,11 @@
     (make-sql-tables! db csvdir)
     (insert-all-csvs! db csvdir)
     (println "Done!")
+    (when notification?
+      (doseq [type notification-types]
+        (notification/send-notification!
+         (notification/metabase-notification-url notification-url dataset-id type)
+         auth-type
+         auth-key
+         auth-value)))
     (System/exit 0)))
