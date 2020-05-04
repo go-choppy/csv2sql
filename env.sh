@@ -24,7 +24,7 @@ export NOTIFICATION_URL=<base_url>
 export DATASET_ID=<database_id>
 export NOTIFICATION_TYPES=rescan_values,sync_schema
 export AUTH_TYPE=cookie
-export AUTH_KEY=metabase.SESSION
-export AUTH_VALUE=<auth_session>
+export AUTH_KEY=<username>
+export AUTH_VALUE=<password>
 
 java -jar csv2sql-0.1.2-SNAPSHOT-standalone.jar

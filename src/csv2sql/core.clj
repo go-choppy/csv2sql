@@ -141,7 +141,7 @@
         dataset-id (System/getenv "DATASET_ID")
         notification-types (clj-str/split (System/getenv "NOTIFICATION_TYPES") #",")
         auth-type (or (System/getenv "AUTH_TYPE") "cookie")
-        auth-key (or (System/getenv "AUTH_KEY") "metabase.SESSION")
+        auth-key (System/getenv "AUTH_KEY")
         auth-value (System/getenv "AUTH_VALUE")]
     (when-not csvdir
       (throw (Exception. "Please specify a valid DATA_DIR environment variable.")))
@@ -154,10 +154,12 @@
     (insert-all-csvs! db csvdir)
     (println "Done!")
     (when notification?
-      (doseq [type notification-types]
-        (notification/send-notification!
-         (notification/metabase-notification-url notification-url dataset-id type)
-         auth-type
-         auth-key
-         auth-value)))
+      ; Get session id by using username and password
+      (let [auth (notification/metabase-auth notification-url auth-key auth-value)]
+        (doseq [type notification-types]
+          (notification/send-notification!
+           (notification/metabase-notification-url notification-url dataset-id type)
+           auth-type
+           (:auth-key auth)
+           (:auth-value auth)))))
     (System/exit 0)))

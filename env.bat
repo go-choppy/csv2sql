@@ -26,8 +26,8 @@ set NOTIFICATION_URL=<metabase-url>
 set DATASET_ID=<database-id>
 set NOTIFICATION_TYPES=rescan_values,sync_schema
 set AUTH_TYPE=cookie
-set AUTH_KEY=metabase.SESSION
-set AUTH_VALUE=<auth-session>
+set AUTH_KEY=<username>
+set AUTH_VALUE=<password>
 
 %JAVA_CMD% -jar csv2sql-0.1.2-SNAPSHOT-standalone.jar
 pause
