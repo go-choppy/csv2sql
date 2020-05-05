@@ -10,7 +10,8 @@
             [clojure.java.io :as io]
             [csv2sql.util :as util]
             [clojure.string :as clj-str]
-            [csv2sql.notification :as notification]))
+            [csv2sql.notification :as notification]
+            [csv2sql.dingtalk :refer [setup-access-token setup-secret send-link-msg!]]))
 
 (defn table-schema-file
   [^java.io.File dir]
@@ -142,7 +143,10 @@
         notification-types (clj-str/split (System/getenv "NOTIFICATION_TYPES") #",")
         auth-type (or (System/getenv "AUTH_TYPE") "cookie")
         auth-key (System/getenv "AUTH_KEY")
-        auth-value (System/getenv "AUTH_VALUE")]
+        auth-value (System/getenv "AUTH_VALUE")
+        access-token (System/getenv "ACCESS_TOKEN")
+        secret (System/getenv "SECRET")
+        username (System/getenv "USERNAME")]
     (when-not csvdir
       (throw (Exception. "Please specify a valid DATA_DIR environment variable.")))
     (when-not (connection-ok? db)
@@ -161,5 +165,13 @@
            (notification/metabase-notification-url notification-url dataset-id type)
            auth-type
            (:auth-key auth)
-           (:auth-value auth)))))
+           (:auth-value auth)))
+        (when (and access-token username)
+          (do
+            (setup-access-token access-token)
+            (setup-secret secret)
+            (send-link-msg! "Metabase Notification"
+                            (str username " Updated Dataset " (:dbname db))
+                            "http://metabase.3steps.cn/app/assets/img/apple-touch-icon.png"
+                            (str notification-url "/browse/" dataset-id))))))
     (System/exit 0)))

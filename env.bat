@@ -29,5 +29,10 @@ set AUTH_TYPE=cookie
 set AUTH_KEY=<username>
 set AUTH_VALUE=<password>
 
+:: Dingtalk
+set ACCESS_TOKEN=<access-token>
+set SECRET=<secret>
+set USERNAME=%username%
+
 %JAVA_CMD% -jar csv2sql-0.1.2-SNAPSHOT-standalone.jar
 pause

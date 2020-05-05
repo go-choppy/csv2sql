@@ -13,9 +13,9 @@
 
 (defn send-notification!
   [url auth-type auth-key auth-value]
-  (println "Send notification to " url)
+  (print "Send notification to " url)
   (client/post url (merge {:unexceptional-status #(<= 200 % 299)} (make-auth auth-type auth-key auth-value)))
-  (println "Success."))
+  (print "\t\tSuccess.\n"))
 
 ;; ------------------------------------------- Metabase ---------------------------------------------
 (defn metabase-auth-url

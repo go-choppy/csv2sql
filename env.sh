@@ -27,4 +27,9 @@ export AUTH_TYPE=cookie
 export AUTH_KEY=<username>
 export AUTH_VALUE=<password>
 
+# Dingtalk
+export ACCESS_TOKEN=<access-token>
+export SECRET=<secret>
+export USERNAME=`whoami`
+
 java -jar csv2sql-0.1.2-SNAPSHOT-standalone.jar

@@ -12,6 +12,9 @@
                  [mysql/mysql-connector-java "5.1.6"]
                  [org.xerial/sqlite-jdbc "3.7.2"]
                  [clojure.java-time "0.3.2"]
+                 [lambdaisland/uri "1.2.1"]
+                 [org.clojure/tools.logging "0.5.0"
+                  :exclusions [org.clojure/clojure]]
                  [clj-http "3.10.1"]]
 
   :repositories [["central" "https://maven.aliyun.com/repository/central"]
