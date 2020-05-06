@@ -134,6 +134,7 @@
 
 (defn -main
   []
+  ; TODO: Add schema for checking environment variables.
   (let [csvdir (System/getenv "DATA_DIR")
         db default-db
         notification? (= (System/getenv "NOTIFICATION_ENABLED") "true")
@@ -146,17 +147,29 @@
         auth-value (System/getenv "AUTH_VALUE")
         access-token (System/getenv "ACCESS_TOKEN")
         secret (System/getenv "SECRET")
-        username (System/getenv "USERNAME")]
+        username (System/getenv "USERNAME")
+        dbname (:dbname db)]
     (when-not csvdir
       (throw (Exception. "Please specify a valid DATA_DIR environment variable.")))
     (when-not (connection-ok? db)
       (throw (Exception. (str "Unable to connect to DB:" db))))
+    ; Notification: I'll update XXX dataset
+    (when notification?
+      (when (and access-token username)
+        (do
+          (setup-access-token access-token)
+          (setup-secret secret)
+          (send-link-msg! "Metabase's Update Notification"
+                          (format "%s Will Update Dataset %s, Please Click the Card for More Details." (clj-str/capitalize username) dbname)
+                          "https://nordata-cdn.oss-cn-shanghai.aliyuncs.com/choppy/running.jpeg"
+                          (str notification-url "/browse/" dataset-id)))))
     (drop-existing-sql-tables! db csvdir)
     (convert-jsons-to-csvs! csvdir)
     (autodetect-sql-schemas! csvdir)
     (make-sql-tables! db csvdir)
     (insert-all-csvs! db csvdir)
     (println "Done!")
+    ; Updated dataset
     (when notification?
       ; Get session id by using username and password
       (let [auth (notification/metabase-auth notification-url auth-key auth-value)]
@@ -167,11 +180,8 @@
            (:auth-key auth)
            (:auth-value auth)))
         (when (and access-token username)
-          (do
-            (setup-access-token access-token)
-            (setup-secret secret)
-            (send-link-msg! "Metabase Notification"
-                            (str username " Updated Dataset " (:dbname db))
-                            "http://metabase.3steps.cn/app/assets/img/apple-touch-icon.png"
-                            (str notification-url "/browse/" dataset-id))))))
+          (send-link-msg! "Metabase's Updated Notification"
+                          (format "%s Updated Dataset %s, Please Click the Card for New Data." (clj-str/capitalize username) dbname)
+                          "http://metabase.3steps.cn/app/assets/img/apple-touch-icon.png"
+                          (str notification-url "/browse/" dataset-id)))))
     (System/exit 0)))
