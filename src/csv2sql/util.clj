@@ -29,7 +29,7 @@
       BOMInputStream.
       io/reader))
 
-(defn exists?
-  "TRUE when File or directory exists."
+(defn is-dir?
+  "TRUE when a directory exists."
   [path]
-  (.exists (io/file path)))
+  (.isDirectory (io/file path)))

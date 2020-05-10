@@ -150,7 +150,7 @@
         username (System/getenv "USERNAME")
         dbname (:dbname db)
         strict-mode? (= (System/getenv "STRICT_MODE") "true")]
-    (when-not (and csvdir (util/exists? csvdir))
+    (when-not (and csvdir (util/is-dir? csvdir))
       (throw (Exception. "Please specify a valid DATA_DIR environment variable and ensure it exists.")))
     (when-not (connection-ok? db)
       (throw (Exception. (str "Unable to connect to DB:" db))))
