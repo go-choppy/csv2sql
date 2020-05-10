@@ -89,11 +89,11 @@
   containing the schema of all the columns in the directory.
   If a non-alphanumeric string is found, raises an exception. 
   If the schema is inconsistent, raises an exception."
-  [csvdir]
+  [csvdir & strict-mode?]
   (let [csv-schemas (->> (files/list-files-of-type csvdir "csv|tsv|txt")
                          (map guess-csv-column-types))
         columns (set (flatten (map keys csv-schemas)))
-        problematic-columns (remove util/alphanumeric? columns)]
+        problematic-columns (remove #(util/alphanumeric? % strict-mode?) columns)]
     (when (empty? csv-schemas)
       (throw (Exception. (str "Error: Not found any valid file(s) in " csvdir))))
     (when-not (empty? problematic-columns)

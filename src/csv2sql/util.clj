@@ -6,8 +6,10 @@
 
 (defn alphanumeric?
   "TRUE when the string is completely alphanumeric."
-  [string]
-  (= string (apply str (re-seq #"[a-z_A-Z0-9]" string))))
+  [string & strict-mode?]
+  (let [pattern (if strict-mode? #"[a-z_0-9]" #"[a-z_A-Z0-9]")]
+    (and (> (count string) 0)
+         (= string (apply str (re-seq pattern string))))))
 
 (defn spaces-to-underscores
   "Converts spaces to underscores."
@@ -26,3 +28,8 @@
       io/input-stream
       BOMInputStream.
       io/reader))
+
+(defn exists?
+  "TRUE when File or directory exists."
+  [path]
+  (.exists (io/file path)))

@@ -46,13 +46,13 @@
   "Scans through the subdirectories of CSVDIR, infers the column data types,
   and stores the inferred schema in CSVDIR so that you may manually edit it
   before loading it in with MAKE-SQL-TABLES."
-  [csvdir]
+  [csvdir & strict-mode?]
   (doseq [dir (files/list-subdirectories csvdir)]
     ; https://clojuredocs.org/clojure.core/printf#example-542692d4c026201cdc327038
     (printf "Autodetecting schema for: %s\n" dir)
     (flush)
     (let [tablename (.getName ^java.io.File dir)
-          schema (guess/scan-csvdir-and-make-schema dir)]
+          schema (guess/scan-csvdir-and-make-schema dir strict-mode?)]
       (when-not (empty? schema)
         (let [table-sql (guess/table-definition-sql-string tablename schema)]
           (println (table-schema-file dir) schema)
@@ -148,9 +148,10 @@
         access-token (System/getenv "ACCESS_TOKEN")
         secret (System/getenv "SECRET")
         username (System/getenv "USERNAME")
-        dbname (:dbname db)]
-    (when-not csvdir
-      (throw (Exception. "Please specify a valid DATA_DIR environment variable.")))
+        dbname (:dbname db)
+        strict-mode? (= (System/getenv "STRICT_MODE", "true"))]
+    (when-not (and csvdir (util/exists? csvdir))
+      (throw (Exception. "Please specify a valid DATA_DIR environment variable and ensure it exists.")))
     (when-not (connection-ok? db)
       (throw (Exception. (str "Unable to connect to DB:" db))))
     ; Notification: I'll update XXX dataset
@@ -165,7 +166,7 @@
                           (str notification-url "/browse/" dataset-id)))))
     (drop-existing-sql-tables! db csvdir)
     (convert-jsons-to-csvs! csvdir)
-    (autodetect-sql-schemas! csvdir)
+    (autodetect-sql-schemas! csvdir strict-mode?)
     (make-sql-tables! db csvdir)
     (insert-all-csvs! db csvdir)
     (println "Done!")

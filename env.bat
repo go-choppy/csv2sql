@@ -3,6 +3,9 @@ set JAVA_CMD=java
 
 set DATA_DIR=<C:\\>
 
+:: Mode
+set STRICT_MODE=true
+
 :: POSTGRESQL
 :: set DATABASE_TYPE=postgresql
 :: set POSTGRES_HOST=localhost

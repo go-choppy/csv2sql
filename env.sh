@@ -1,6 +1,10 @@
 #!/bin/bash
 
 export DATA_DIR=<data_dir>
+
+# Mode
+export STRICT_MODE=true
+
 # POSTGRESQL
 # export DATABASE_TYPE=postgresql
 # export POSTGRES_HOST=localhost

@@ -1,4 +1,4 @@
-(defproject csv2sql "0.1.3-SNAPSHOT"
+(defproject csv2sql "0.1.4-SNAPSHOT"
   :description "A simple ETL tool to load CSVs in a directory tree into a SQL database (MySQL/PostgreSQL/SQLite). Based on 'https://github.com/ivarthorson/csv2sql'"
   :url "http://github.com/go-choppy/csv2sql"
   :license {:name "EPL-2.0 OR GPL-2.0-or-later WITH Classpath-exception-2.0"
