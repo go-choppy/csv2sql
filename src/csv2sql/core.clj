@@ -46,19 +46,18 @@
   "Scans through the subdirectories of CSVDIR, infers the column data types,
   and stores the inferred schema in CSVDIR so that you may manually edit it
   before loading it in with MAKE-SQL-TABLES."
-  [csvdir & strict-mode?]
+  [csvdir]
   (doseq [dir (files/list-subdirectories csvdir)]
     ; https://clojuredocs.org/clojure.core/printf#example-542692d4c026201cdc327038
     (printf "Autodetecting schema for: %s\n" dir)
     (flush)
     (let [tablename (.getName ^java.io.File dir)
-          schema (guess/scan-csvdir-and-make-schema dir strict-mode?)]
+          schema (guess/scan-csvdir-and-make-schema dir)]
       (when-not (empty? schema)
         (let [table-sql (guess/table-definition-sql-string tablename schema)]
           (println (table-schema-file dir) schema)
           (spit (table-schema-file dir) schema)
           (spit (table-sql-file dir) table-sql))))))
-
 
 (def default-db
   (let [db-type (System/getenv "DATABASE_TYPE")]
@@ -166,7 +165,8 @@
                           (str notification-url "/browse/" dataset-id)))))
     (drop-existing-sql-tables! db csvdir)
     (convert-jsons-to-csvs! csvdir)
-    (autodetect-sql-schemas! csvdir strict-mode?)
+    (guess/setup-strict-mode strict-mode?)
+    (autodetect-sql-schemas! csvdir)
     (make-sql-tables! db csvdir)
     (insert-all-csvs! db csvdir)
     (println "Done!")

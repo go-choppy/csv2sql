@@ -7,7 +7,8 @@
 (defn alphanumeric?
   "TRUE when the string is completely alphanumeric."
   [string & strict-mode?]
-  (let [pattern (if strict-mode? #"[a-z_0-9]" #"[a-z_A-Z0-9]")]
+  (let [strict-mode? (first strict-mode?)
+        pattern (if strict-mode? #"[a-z_0-9]" #"[a-z_A-Z0-9]")]
     (and (> (count string) 0)
          (= string (apply str (re-seq pattern string))))))
 
