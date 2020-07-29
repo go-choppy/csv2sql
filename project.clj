@@ -27,5 +27,6 @@
 
   :repl-options {:init-ns csv2sql.core}
   :main csv2sql.core
-  :aot [csv2sql.core])
+  :aot [csv2sql.core]
+  :plugins [[io.taylorwood/lein-native-image "0.3.1"]])
 
