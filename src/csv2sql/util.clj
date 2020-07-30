@@ -1,5 +1,7 @@
 (ns csv2sql.util
-  (:require [clojure.java.io :as io])
+  (:require [clojure.java.io :as io]
+            [clojure.string :as str]
+            [camel-snake-kebab.core :as csk])
   (:import [org.apache.commons.io.input BOMInputStream]))
 
 (set! *warn-on-reflection* true)
@@ -15,12 +17,17 @@
 (defn spaces-to-underscores
   "Converts spaces to underscores."
   [string]
-  (clojure.string/replace string #"\s" "_"))
+  (str/replace string #"\s" "_"))
 
 (defn periods-to-underscores
   "Converts spaces to underscores."
   [string]
-  (clojure.string/replace string #"\." "_"))
+  (str/replace string #"\." "_"))
+
+(defn camel-to-snake
+  "Converts camel to snake case."
+  [string]
+  (csk/->snake_case string))
 
 (defn bom-reader
   "Remove `Byte Order Mark` and return reader"

@@ -66,7 +66,8 @@
   [columns]
   (->> columns
        (map util/periods-to-underscores)
-       (mapv util/spaces-to-underscores)))
+       (mapv util/spaces-to-underscores)
+       (map util/camel-to-snake)))
 
 (defn guess-csv-column-types
   "Returns a map of column name to the guessed SQL column type. Reads every

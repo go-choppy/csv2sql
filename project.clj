@@ -1,4 +1,4 @@
-(defproject csv2sql "0.1.4-SNAPSHOT"
+(defproject csv2sql "0.1.5-SNAPSHOT"
   :description "A simple ETL tool to load CSVs in a directory tree into a SQL database (MySQL/PostgreSQL/SQLite). Based on 'https://github.com/ivarthorson/csv2sql'"
   :url "http://github.com/go-choppy/csv2sql"
   :license {:name "EPL-2.0 OR GPL-2.0-or-later WITH Classpath-exception-2.0"
@@ -15,7 +15,8 @@
                  [lambdaisland/uri "1.2.1"]
                  [org.clojure/tools.logging "0.5.0"
                   :exclusions [org.clojure/clojure]]
-                 [clj-http "3.10.1"]]
+                 [clj-http "3.10.1"]
+                 [camel-snake-kebab "0.4.1"]]
 
   :repositories [["central" "https://maven.aliyun.com/repository/central"]
                  ["jcenter" "https://maven.aliyun.com/repository/jcenter"]
